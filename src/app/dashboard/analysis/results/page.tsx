@@ -38,7 +38,7 @@ export default function ResultsPage() {
         }
 
         setAnalyses(parsedData)
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching results:', err)
         setError(err.message || 'Failed to load analysis results')
       } finally {

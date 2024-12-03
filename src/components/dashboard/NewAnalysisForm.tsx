@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PersonaKey } from '@/lib/openai'
+import { useAuth } from '@/lib/context/AuthContext'
 
 interface FormData {
   title: string
@@ -36,6 +37,7 @@ const initialFormData: FormData = {
 }
 
 export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProps) {
+  const { getAuthHeaders } = useAuth()
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -57,9 +59,7 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
       
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           ...formData,
           persona: selectedPersona
@@ -81,7 +81,7 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
       const analysisId = Date.now().toString()
       sessionStorage.setItem(`analysis_${analysisId}`, JSON.stringify(data.analyses))
       router.push(`/dashboard/analysis/results?id=${analysisId}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error details:', error)
       setError(`Failed to analyze startup idea: ${error.message}`)
     } finally {
