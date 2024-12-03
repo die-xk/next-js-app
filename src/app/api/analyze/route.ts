@@ -88,7 +88,7 @@ Analyze this startup and return the analysis in the following JSON structure:
 
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-4-turbo-preview",
+        model: "gpt-3.5-turbo-0125",
         messages: [
           {
             role: "system",
