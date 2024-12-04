@@ -11,14 +11,18 @@ export default function SignInForm() {
   const [error, setError] = useState('')
   const { signIn, signInWithGoogle } = useAuth()
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
     try {
       await signIn(email, password)
       router.push('/dashboard')
     } catch (error) {
       setError('Invalid email or password')
+    } finally {
+      setLoading(false)
     }
   }
 

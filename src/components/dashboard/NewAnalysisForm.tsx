@@ -55,7 +55,7 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
     setError(null)
     
     try {
-      console.log('Submitting analysis request...', { selectedPersona, formData })
+      router.push('/dashboard/analysis/results?loading=true')
       
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -72,19 +72,11 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
         throw new Error(data.error || 'Analysis failed')
       }
 
-      console.log('Analysis response:', data)
-
-      if (!data.analyses || !data.analyses.length) {
-        throw new Error('No analysis data received')
-      }
-
-      const analysisId = Date.now().toString()
+      const analysisId = data.analyses[0].id
       sessionStorage.setItem(`analysis_${analysisId}`, JSON.stringify(data.analyses))
       router.push(`/dashboard/analysis/results?id=${analysisId}`)
     } catch (error: any) {
-      console.error('Error details:', error)
       setError(`Failed to analyze startup idea: ${error.message}`)
-    } finally {
       setIsLoading(false)
     }
   }

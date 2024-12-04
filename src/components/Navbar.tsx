@@ -4,10 +4,21 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Button } from './ui/button'
 import { useAuth } from '@/lib/context/AuthContext'
+import { useRouter } from 'next/navigation'
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, signOut } = useAuth()
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b">
@@ -39,7 +50,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <Button variant="ghost" onClick={signOut}>Sign Out</Button>
+                <Button variant="ghost" onClick={handleSignOut}>Sign Out</Button>
                 <Button asChild>
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
@@ -122,7 +133,7 @@ const Navbar = () => {
             <div className="pt-4 space-y-2">
               {user ? (
                 <>
-                  <Button variant="ghost" className="w-full justify-center" onClick={signOut}>
+                  <Button variant="ghost" className="w-full justify-center" onClick={handleSignOut}>
                     Sign Out
                   </Button>
                   <Button className="w-full justify-center" asChild>

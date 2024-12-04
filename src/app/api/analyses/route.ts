@@ -1,27 +1,27 @@
 import { NextResponse } from 'next/server'
-import { deleteAnalysis } from '@/lib/db'
+import { getUserAnalyses } from '@/lib/db'
 import { adminAuth } from '@/lib/firebase-admin'
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
   try {
+    // Get the token from the Authorization header
     const token = request.headers.get('Authorization')?.split('Bearer ')[1]
     
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 })
     }
 
+    // Verify the Firebase token
     const decodedToken = await adminAuth.verifyIdToken(token)
     const userId = decodedToken.uid
 
-    await deleteAnalysis(params.id, userId)
+    // Get all analyses for the user
+    const analyses = await getUserAnalyses(userId)
     
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ analyses })
   } catch (error: any) {
     return NextResponse.json(
-      { error: 'Failed to delete analysis' },
+      { error: 'Failed to fetch analyses' },
       { status: 500 }
     )
   }

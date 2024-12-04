@@ -89,9 +89,10 @@ export async function saveAnalysis({
       stage,
       challenges,
       persona,
-      analysis_result
+      analysis_result,
+      created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `
   
   await executeQuery<void>({
@@ -113,19 +114,109 @@ export async function saveAnalysis({
 
 export async function getUserAnalyses(userId: string): Promise<Analysis[]> {
   const query = `
-    SELECT *
+    SELECT 
+      id,
+      title,
+      description,
+      target_market,
+      business_model,
+      stage,
+      challenges,
+      persona,
+      analysis_result,
+      created_at
     FROM analyses
     WHERE user_id = ?
     ORDER BY created_at DESC
   `
-  return executeQuery<Analysis[]>({ query, values: [userId] })
+  
+  const analyses = await executeQuery<Analysis[]>({ 
+    query, 
+    values: [userId] 
+  })
+  
+  return analyses.map(analysis => ({
+    ...analysis,
+    analysis_result: JSON.parse(analysis.analysis_result as unknown as string)
+  }))
 }
 
-export async function getAnalysisById(id: string, userId: string): Promise<Analysis> {
+export async function getAnalysisById(id: string, userId: string): Promise<Analysis | null> {
   const query = `
-    SELECT *
+    SELECT 
+      id,
+      title,
+      description,
+      target_market,
+      business_model,
+      stage,
+      challenges,
+      persona,
+      analysis_result,
+      created_at
     FROM analyses
     WHERE id = ? AND user_id = ?
   `
-  return executeQuery<Analysis>({ query, values: [id, userId] })
+  
+  const [analysis] = await executeQuery<Analysis[]>({ 
+    query, 
+    values: [id, userId] 
+  })
+  
+  if (!analysis) return null
+  
+  return {
+    ...analysis,
+    analysis_result: JSON.parse(analysis.analysis_result as unknown as string)
+  }
+}
+
+export async function deleteAnalysis(id: string, userId: string): Promise<void> {
+  const query = `
+    DELETE FROM analyses 
+    WHERE id = ? AND user_id = ?
+  `
+  
+  await executeQuery<void>({
+    query,
+    values: [id, userId]
+  })
+}
+
+export async function saveChatMessage({
+  id,
+  analysisId,
+  userId,
+  role,
+  content
+}: {
+  id: string
+  analysisId: string
+  userId: string
+  role: 'user' | 'ai'
+  content: string
+}) {
+  const query = `
+    INSERT INTO chat_messages (id, analysis_id, user_id, role, content)
+    VALUES (?, ?, ?, ?, ?)
+  `
+  
+  await executeQuery({
+    query,
+    values: [id, analysisId, userId, role, content]
+  })
+}
+
+export async function getChatMessages(analysisId: string, userId: string) {
+  const query = `
+    SELECT id, role, content, created_at
+    FROM chat_messages
+    WHERE analysis_id = ? AND user_id = ?
+    ORDER BY created_at ASC
+  `
+  
+  return executeQuery({
+    query,
+    values: [analysisId, userId]
+  })
 } 
