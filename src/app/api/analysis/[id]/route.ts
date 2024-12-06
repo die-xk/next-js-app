@@ -4,7 +4,7 @@ import { adminAuth } from '@/lib/firebase-admin'
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } } & { searchParams: { [key: string]: string | string[] | undefined } }
+  context: { params: { id: string } }
 ) {
   try {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1]
@@ -16,7 +16,7 @@ export async function DELETE(
     const decodedToken = await adminAuth.verifyIdToken(token)
     const userId = decodedToken.uid
 
-    await deleteAnalysis(params.id, userId)
+    await deleteAnalysis(context.params.id, userId)
     
     return NextResponse.json({ success: true })
   } catch (error: Error | unknown) {
