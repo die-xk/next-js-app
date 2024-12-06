@@ -18,6 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="frame-ancestors 'self' https://buy.paddle.com https://checkout.paddle.com"
+        />
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           <Navbar />

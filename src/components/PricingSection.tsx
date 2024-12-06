@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const plans = [
   {
@@ -48,6 +49,12 @@ const plans = [
 ]
 
 export default function PricingSection() {
+  const router = useRouter()
+
+  const handlePlanSelect = (planName: string) => {
+    router.push(`/payment?plan=${planName.toLowerCase()}`)
+  }
+
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,6 +112,7 @@ export default function PricingSection() {
               </ul>
 
               <button 
+                onClick={() => handlePlanSelect(plan.name)}
                 className={`mt-8 w-full py-3 px-4 rounded-md font-medium ${
                   plan.popular
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
