@@ -13,6 +13,7 @@ interface PreviewProps {
   selectedPersona: PersonaKey | null
   onBack: () => void
   onSubmit: () => void
+  onUpgrade: () => void
   isLoading: boolean
 }
 
@@ -21,6 +22,7 @@ export default function AnalysisPreview({
   selectedPersona, 
   onBack, 
   onSubmit,
+  onUpgrade,
   isLoading 
 }: PreviewProps) {
   const { getRemainingAnalyses, analyses } = useSubscription()
@@ -55,6 +57,7 @@ export default function AnalysisPreview({
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
         nextResetDate={getNextResetDate()}
+        onUpgrade={onUpgrade}
       />
 
       <div className="flex items-center justify-between">

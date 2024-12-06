@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Loader2, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -39,6 +39,8 @@ const initialFormData: FormData = {
   challenges: ''
 }
 
+const DRAFT_STORAGE_KEY = 'analysis_draft'
+
 export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProps) {
   const { getAuthHeaders } = useAuth();
   const { canAccessAdvisor, getRemainingAnalyses, analyses } = useSubscription();
@@ -49,6 +51,14 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const [showPreview, setShowPreview] = useState(false)
+
+  // Load draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY)
+    if (savedDraft) {
+      setFormData(JSON.parse(savedDraft))
+    }
+  }, [])
 
   // Calculate next reset date based on the most recent analysis
   const getNextResetDate = () => {
@@ -114,6 +124,12 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
     }
   }
 
+  // Save draft before redirecting to pricing
+  const handleUpgradeClick = () => {
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData))
+    router.push('/pricing')
+  }
+
   return (
     <div className="space-y-6 max-w-2xl">
       {showPreview ? (
@@ -122,6 +138,7 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
           selectedPersona={selectedPersona}
           onBack={() => setShowPreview(false)}
           onSubmit={() => handleSubmit(new Event('submit') as any)}
+          onUpgrade={handleUpgradeClick}
           isLoading={isLoading}
         />
       ) : (
@@ -260,7 +277,7 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
                   This advisor is only available in higher tiers. 
                   <button 
                     type="button"
-                    onClick={() => router.push('/pricing')}
+                    onClick={handleUpgradeClick}
                     className="ml-2 underline"
                   >
                     Upgrade now

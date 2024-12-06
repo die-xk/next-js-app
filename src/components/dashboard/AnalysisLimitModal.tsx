@@ -9,9 +9,10 @@ interface AnalysisLimitModalProps {
   isOpen: boolean
   onClose: () => void
   nextResetDate: Date
+  onUpgrade: () => void
 }
 
-export default function AnalysisLimitModal({ isOpen, onClose, nextResetDate }: AnalysisLimitModalProps) {
+export default function AnalysisLimitModal({ isOpen, onClose, nextResetDate, onUpgrade }: AnalysisLimitModalProps) {
   const router = useRouter()
   
   const formatDate = (date: Date) => {
@@ -60,7 +61,7 @@ export default function AnalysisLimitModal({ isOpen, onClose, nextResetDate }: A
             <Button variant="outline" onClick={onClose}>
               Maybe Later
             </Button>
-            <Button onClick={() => router.push('/pricing')}>
+            <Button onClick={onUpgrade}>
               Upgrade to Pro
             </Button>
           </div>
