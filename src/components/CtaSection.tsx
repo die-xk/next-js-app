@@ -18,7 +18,7 @@ export default function CtaSection() {
               Ready to validate your startup idea?
             </h2>
             <p className="mt-4 text-lg text-indigo-100">
-              Join thousands of founders who've used StartupLens to refine and validate their startup ideas.
+              Join thousands of founders who&apos;ve used StartupLens to refine and validate their startup ideas.
             </p>
             <div className="mt-8 flex justify-center space-x-4">
               <button className="inline-flex items-center px-6 py-3 rounded-lg bg-white text-indigo-600 font-medium hover:bg-opacity-90 transition-colors">
