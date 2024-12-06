@@ -118,8 +118,8 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
       const analysisId = data.analyses[0].id
       sessionStorage.setItem(`analysis_${analysisId}`, JSON.stringify(data.analyses))
       router.push(`/dashboard/analysis/results?id=${analysisId}`)
-    } catch (error: any) {
-      setError(`Failed to analyze startup idea: ${error.message}`)
+    } catch (error: Error | unknown) {
+      setError(`Failed to analyze startup idea: ${error instanceof Error ? error.message : 'Unknown error'}`)
       setIsLoading(false)
     }
   }

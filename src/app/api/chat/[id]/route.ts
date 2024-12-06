@@ -20,9 +20,10 @@ export async function GET(
     const messages = await getChatMessages(id, decodedToken.uid)
     
     return NextResponse.json({ messages })
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to fetch chat messages' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
@@ -91,9 +92,10 @@ export async function POST(
         { id: aiMessageId, role: 'ai', content: aiReply }
       ] 
     })
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to process chat message' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

@@ -9,6 +9,7 @@ import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '@/types/subscription'
 import personaPrompts from '@/lib/prompts/personas'
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 import { AnalysisFormData } from '@/components/dashboard/NewAnalysisForm'
+import OpenAI from 'openai'
 
 interface RequestBody extends AnalysisFormData {
   persona: PersonaKey
@@ -109,18 +110,20 @@ export async function POST(req: Request) {
         }]
       })
 
-    } catch (openAiError: any) {
+    } catch (openAiError: Error | typeof OpenAI.APIError | unknown) {
       console.error('OpenAI API Error:', openAiError)
+      const errorMessage = openAiError instanceof Error ? openAiError.message : 'Failed to generate analysis'
       return NextResponse.json(
-        { error: 'Failed to generate analysis', details: openAiError.message },
+        { error: 'Failed to generate analysis', details: errorMessage },
         { status: 500 }
       )
     }
 
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
     console.error('Analysis error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to analyze startup idea'
     return NextResponse.json(
-      { error: 'Failed to analyze startup idea', details: error.message },
+      { error: 'Failed to analyze startup idea', details: errorMessage },
       { status: 500 }
     )
   }

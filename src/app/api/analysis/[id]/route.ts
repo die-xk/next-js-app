@@ -19,9 +19,10 @@ export async function DELETE(
     await deleteAnalysis(params.id, userId)
     
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete analysis'
     return NextResponse.json(
-      { error: 'Failed to delete analysis' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

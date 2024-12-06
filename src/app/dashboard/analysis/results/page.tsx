@@ -5,9 +5,10 @@ import { useSearchParams } from 'next/navigation'
 import DashboardShell from '@/components/dashboard/DashboardShell'
 import AnalysisResults from '@/components/dashboard/AnalysisResults'
 import AnalysisLoading from '@/components/dashboard/AnalysisLoading'
+import { Analysis } from '@/types/database'
 
 export default function ResultsPage() {
-  const [analyses, setAnalyses] = useState<any>(null)
+  const [analyses, setAnalyses] = useState<Analysis[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
@@ -38,8 +39,8 @@ export default function ResultsPage() {
         }
 
         setAnalyses(parsedData)
-      } catch (err: any) {
-        setError(err.message || 'Failed to load analysis results')
+      } catch (err: Error | unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load analysis results')
       } finally {
         setLoading(false)
       }

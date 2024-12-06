@@ -40,7 +40,7 @@ export async function POST(req: Request) {
           content: `Based on these points about ${section}:\n${context.join('\n')}\n
                    Generate a new insightful question and detailed answer that would help 
                    understand this aspect better. Focus on practical, actionable advice.
-                   Previous questions: ${previousQuestions.map(q => q.question).join(', ')}`
+                   Previous questions: ${previousQuestions.map((q: { question: string }) => q.question).join(', ')}`
         }
       ],
       response_format: { type: "json_object" }
@@ -48,9 +48,10 @@ export async function POST(req: Request) {
 
     const content = JSON.parse(response.choices[0].message.content || '')
     return NextResponse.json(content)
-  } catch (error: any) {
+  } catch (error: Error | typeof OpenAI.APIError | unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to get AI response'
     return NextResponse.json(
-      { error: error.message || 'Failed to get AI response' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

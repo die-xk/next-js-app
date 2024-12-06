@@ -41,8 +41,8 @@ export default function ConversationsPage() {
 
         const data = await response.json()
         setAnalyses(data.analyses)
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err: Error | unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch analyses')
       } finally {
         setLoading(false)
       }
