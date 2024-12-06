@@ -4,7 +4,7 @@ import { adminAuth } from '@/lib/firebase-admin'
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } } & { searchParams: { [key: string]: string | string[] | undefined } }
 ) {
   try {
     const token = request.headers.get('Authorization')?.split('Bearer ')[1]
