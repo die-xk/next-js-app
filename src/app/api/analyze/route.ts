@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { openai, AI_PERSONAS, PersonaKey } from '@/lib/openai'
-import { saveAnalysis } from '@/lib/db'
+import { getMonthlyAnalysisCount, saveAnalysis } from '@/lib/db'
 import { adminAuth } from '@/lib/firebase-admin'
 import { nanoid } from 'nanoid'
 import { AnalysisResult } from '@/types/database'
+import { subscriptionGuard } from '@/middleware/subscriptionGuard'
+import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '@/types/subscription'
 
 export async function POST(req: Request) {
   try {
@@ -17,6 +19,27 @@ export async function POST(req: Request) {
     // Verify the Firebase token
     const decodedToken = await adminAuth.verifyIdToken(token)
     const userId = decodedToken.uid
+
+    // Check subscription access
+    const { allowed, subscription, message } = await subscriptionGuard(userId, 'free')
+    
+    if (!allowed) {
+      return NextResponse.json({ 
+        error: message || 'Subscription required',
+        upgrade: true 
+      }, { status: 403 })
+    }
+
+    // Get monthly analysis count for user
+    const monthlyCount = await getMonthlyAnalysisCount(userId)
+    const limit = SUBSCRIPTION_LIMITS[subscription.subscription_tier as SubscriptionTier].analysisCount
+
+    if (limit !== -1 && monthlyCount >= limit) {
+      return NextResponse.json({
+        error: 'Monthly analysis limit reached',
+        upgrade: true
+      }, { status: 403 })
+    }
 
     const body = await req.json()
     console.log('Request body:', body)

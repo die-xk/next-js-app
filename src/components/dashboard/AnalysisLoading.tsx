@@ -1,15 +1,16 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { BrainCircuit, LineChart, ShieldCheck } from 'lucide-react'
+import { PersonaKey } from '@/lib/openai'
+import { Brain, ChartBar, Shield } from 'lucide-react'
 
-const personas = [
-  { icon: BrainCircuit, label: 'VC Perspective', color: 'text-purple-600' },
-  { icon: LineChart, label: 'Market Analysis', color: 'text-blue-600' },
-  { icon: ShieldCheck, label: 'Risk Assessment', color: 'text-emerald-600' }
+const analysisSteps = [
+  { label: 'Understanding Context', icon: Brain },
+  { label: 'Market Analysis', icon: ChartBar },
+  { label: 'Risk Assessment', icon: Shield },
 ]
 
-export default function AnalysisLoading() {
+export default function AnalysisLoading({ selectedPersona }: { selectedPersona: PersonaKey }) {
   return (
     <div className="max-w-2xl mx-auto py-12">
       <motion.div
@@ -18,49 +19,48 @@ export default function AnalysisLoading() {
         className="text-center space-y-4"
       >
         <h2 className="text-2xl font-bold">Analyzing Your Startup</h2>
-        <p className="text-gray-500">Our AI advisors are reviewing your idea...</p>
+        <p className="text-gray-500">Our {selectedPersona} advisor is reviewing your idea...</p>
 
-        <div className="flex justify-center space-x-8 mt-8">
-          {personas.map((persona, index) => (
+        <div className="mt-8 space-y-4">
+          {analysisSteps.map((step, index) => (
             <motion.div
-              key={persona.label}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ 
-                scale: [0.8, 1.1, 1],
-                opacity: 1
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: index * 0.3
-              }}
-              className="flex flex-col items-center space-y-2"
+              key={step.label}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.5 }}
+              className="flex items-center space-x-4"
             >
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-white shadow-lg ${persona.color}`}>
-                <persona.icon className="w-6 h-6" />
-              </div>
-              <span className="text-sm text-gray-600">{persona.label}</span>
+              <motion.div
+                animate={{
+                  scale: [1, 1.2, 1],
+                  transition: {
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: index * 0.5
+                  }
+                }}
+                className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center"
+              >
+                <step.icon className="w-5 h-5 text-indigo-600" />
+              </motion.div>
+              <span className="text-gray-600">{step.label}</span>
+              <motion.div
+                className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+              >
+                <motion.div
+                  className="h-full bg-indigo-600"
+                  initial={{ width: '0%' }}
+                  animate={{ width: '100%' }}
+                  transition={{
+                    duration: 3,
+                    delay: index * 0.5,
+                    ease: 'easeInOut'
+                  }}
+                />
+              </motion.div>
             </motion.div>
           ))}
         </div>
-
-        <motion.div 
-          className="h-2 bg-gray-100 rounded-full mt-8 overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <motion.div
-            className="h-full bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-600"
-            initial={{ x: '-100%' }}
-            animate={{ x: '100%' }}
-            transition={{
-              repeat: Infinity,
-              duration: 2,
-              ease: 'linear'
-            }}
-          />
-        </motion.div>
       </motion.div>
     </div>
   )

@@ -1,6 +1,10 @@
 export interface User {
   id: string
   email: string
+  subscription_tier: 'free' | 'pro' | 'enterprise'
+  subscription_id?: string
+  subscription_status?: string
+  subscription_updated_at?: Date
   created_at?: Date
   updated_at?: Date
 }

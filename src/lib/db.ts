@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise'
 import { User, Analysis, AnalysisResult } from '@/types/database'
+import { SubscriptionTier } from '@/types/subscription';
 
 const pool = mysql.createPool({
   host: 'sql322.your-server.de',
@@ -219,4 +220,73 @@ export async function getChatMessages(analysisId: string, userId: string) {
     query,
     values: [analysisId, userId]
   })
+}
+
+export async function updateUserSubscription(
+  userId: string,
+  data: {
+    tier: SubscriptionTier;
+    subscriptionId?: string;
+    status?: string;
+  }
+) {
+  const query = `
+    UPDATE users
+    SET 
+      subscription_tier = ?,
+      subscription_id = ?,
+      subscription_status = ?,
+      subscription_updated_at = NOW()
+    WHERE id = ?
+  `;
+
+  try {
+    await executeQuery({
+      query,
+      values: [data.tier, data.subscriptionId, data.status, userId]
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating subscription:', error);
+    throw new Error('Failed to update subscription');
+  }
+}
+
+export async function getUserSubscription(userId: string) {
+  const query = `
+    SELECT 
+      subscription_tier,
+      subscription_id,
+      subscription_status,
+      subscription_updated_at
+    FROM users
+    WHERE id = ?
+  `;
+
+  try {
+    const [result] = await executeQuery<any[]>({
+      query,
+      values: [userId]
+    });
+    return result || null;
+  } catch (error) {
+    console.error('Error fetching subscription:', error);
+    throw new Error('Failed to fetch subscription');
+  }
+}
+
+export async function getMonthlyAnalysisCount(userId: string): Promise<number> {
+  const query = `
+    SELECT COUNT(*) as count
+    FROM analyses
+    WHERE user_id = ?
+    AND created_at >= DATE_FORMAT(NOW() ,'%Y-%m-01')
+  `;
+
+  const [result] = await executeQuery<[{count: number}]>({
+    query,
+    values: [userId]
+  });
+
+  return result.count;
 } 
