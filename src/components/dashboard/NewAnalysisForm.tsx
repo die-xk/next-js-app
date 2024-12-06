@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/context/AuthContext'
 import FormProgress from './FormProgress'
 import AnalysisPreview from './AnalysisPreview'
 
-export interface FormData {
+export interface AnalysisFormData {
   title: string
   description: string
   targetMarket: string
@@ -30,7 +30,7 @@ const stages = [
   { value: 'scaling', label: 'Scaling' }
 ] as const
 
-const initialFormData: FormData = {
+const initialFormData: AnalysisFormData = {
   title: '',
   description: '',
   targetMarket: '',
@@ -46,7 +46,7 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
   const { canAccessAdvisor, getRemainingAnalyses, analyses } = useSubscription();
   const remainingAnalyses = getRemainingAnalyses();
   const [showLimitModal, setShowLimitModal] = useState(false)
-  const [formData, setFormData] = useState<FormData>(initialFormData)
+  const [formData, setFormData] = useState<AnalysisFormData>(initialFormData)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()

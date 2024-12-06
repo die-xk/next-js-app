@@ -6,6 +6,13 @@ import { nanoid } from 'nanoid'
 import { AnalysisResult } from '@/types/database'
 import { subscriptionGuard } from '@/middleware/subscriptionGuard'
 import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '@/types/subscription'
+import personaPrompts from '@/lib/prompts/personas'
+import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
+import { AnalysisFormData } from '@/components/dashboard/NewAnalysisForm'
+
+interface RequestBody extends AnalysisFormData {
+  persona: PersonaKey
+}
 
 export async function POST(req: Request) {
   try {
@@ -41,65 +48,15 @@ export async function POST(req: Request) {
       }, { status: 403 })
     }
 
-    const body = await req.json()
+    const body = (await req.json()) as RequestBody
     console.log('Request body:', body)
 
     const { title, description, targetMarket, businessModel, stage, challenges, persona } = body
 
     console.log('Received request with persona:', persona)
 
-    const startupContext = `
-Startup Analysis Request:
-------------------------
-Name: ${title}
-Current Stage: ${stage}
-
-Detailed Description:
-${description}
-
-Target Market:
-${targetMarket}
-
-Business Model:
-${businessModel}
-
-Key Challenges:
-${challenges}
-
-Analyze this startup and return the analysis in the following JSON structure:
-{
-  "executiveSummary": "2-3 sentence overview",
-  "detailedAnalysis": {
-    "marketOpportunity": "analysis of market potential",
-    "businessModel": "analysis of business model",
-    "competitiveAdvantage": "analysis of competitive position",
-    "keyRisks": "main risks identified"
-  },
-  "strengths": [
-    "strength 1",
-    "strength 2"
-  ],
-  "concerns": [
-    "concern 1",
-    "concern 2"
-  ],
-  "recommendations": [
-    "recommendation 1",
-    "recommendation 2"
-  ],
-  "nextSteps": [
-    "step 1",
-    "step 2"
-  ],
-  "score": {
-    "marketPotential": "1-10 score",
-    "executionRisk": "1-10 score",
-    "overallViability": "1-10 score"
-  }
-}`
-
-    const selectedPersona = AI_PERSONAS[persona as PersonaKey]
-    if (!selectedPersona) {
+    const prompt = personaPrompts[persona as PersonaKey]
+    if (!prompt) {
       console.error('Invalid persona selected:', persona)
       return NextResponse.json(
         { error: 'Invalid advisor selected' },
@@ -110,18 +67,14 @@ Analyze this startup and return the analysis in the following JSON structure:
     console.log('Making OpenAI request...')
 
     try {
+      const messages = [
+        { role: 'system', content: prompt.systemPrompt },
+        { role: 'user', content: prompt.userPrompt(body) }
+      ]
+
       const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo-0125",
-        messages: [
-          {
-            role: "system",
-            content: `${selectedPersona.prompt}\n\nProvide your analysis in valid JSON format. Ensure all text is properly escaped and the response is a valid JSON object.`
-          },
-          {
-            role: "user",
-            content: startupContext
-          }
-        ],
+        messages: messages as ChatCompletionMessageParam[],
         temperature: 0.7,
         max_tokens: 2000,
         response_format: { type: "json_object" }
@@ -152,7 +105,6 @@ Analyze this startup and return the analysis in the following JSON structure:
         analyses: [{
           id: analysisId,
           persona,
-          role: selectedPersona.role,
           analysis: analysisContent
         }]
       })

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import {FormData} from './NewAnalysisForm'
+import { AnalysisFormData } from './NewAnalysisForm'
 import { PersonaKey } from '@/lib/openai'
 import { ArrowLeft, Send } from 'lucide-react'
 import { useSubscription } from '@/hooks/useSubscription'
@@ -9,7 +9,7 @@ import AnalysisLimitModal from './AnalysisLimitModal'
 import { useState } from 'react'
 
 interface PreviewProps {
-  formData: FormData
+  formData: AnalysisFormData
   selectedPersona: PersonaKey | null
   onBack: () => void
   onSubmit: () => void
