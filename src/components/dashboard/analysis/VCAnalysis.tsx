@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { AnalysisResult } from '@/types/database'
+import { TrendingUp, Target, Scale, AlertCircle, Milestone } from 'lucide-react'
 
 interface VCAnalysisProps {
   analysis: AnalysisResult
@@ -27,58 +28,93 @@ export default function VCAnalysis({ analysis }: VCAnalysisProps) {
     return 'text-red-700'
   }
 
+  const sectionIcons = {
+    investmentPotential: TrendingUp,
+    marketAnalysis: Target,
+    scalability: Scale,
+    risks: AlertCircle,
+    milestones: Milestone
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Investment Summary */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">Investment Summary</h3>
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className={`text-center p-4 rounded-lg ${getScoreBg(analysis.summary.score)}`}>
-            <div className={`text-3xl font-bold ${getScoreColor(analysis.summary.score)}`}>
-              {analysis.summary.score}/100
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6 w-full"
+    >
+      {/* Investment Summary Card */}
+      <div className="bg-white rounded-xl shadow-md overflow-hidden w-full">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+          <h3 className="text-xl font-semibold text-white">Investment Summary</h3>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center space-x-8">
+            <div className={`flex-shrink-0 p-6 rounded-xl ${getScoreBg(analysis.summary.score)}`}>
+              <div className={`text-4xl font-bold ${getScoreColor(analysis.summary.score)}`}>
+                {analysis.summary.score}
+              </div>
+              <div className="text-sm font-medium text-gray-500 mt-1">Investment Score</div>
             </div>
-            <div className="text-sm text-gray-500">Investment Score</div>
-          </div>
-          <div className="col-span-2">
-            <div className="font-medium text-gray-900">Verdict</div>
-            <p className={`${getVerdictColor(analysis.summary.score)}`}>
-              {analysis.summary.verdict}
-            </p>
+            <div className="flex-grow">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">Verdict</h4>
+              <p className={`${getVerdictColor(analysis.summary.score)} text-lg`}>
+                {analysis.summary.verdict}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Detailed Analysis */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">Investment Analysis</h3>
-        {Object.entries(analysis.sections).map(([key, points]) => (
-          <div key={key} className="mb-6 last:mb-0">
-            <h4 className="font-medium text-gray-900 mb-2 capitalize">
-              {key.replace(/([A-Z])/g, ' $1')}
-            </h4>
-            <ul className="space-y-2">
+      {/* Analysis Sections */}
+      {Object.entries(analysis.sections).map(([key, points]) => {
+        const Icon = sectionIcons[key as keyof typeof sectionIcons]
+        return (
+          <motion.div 
+            key={key}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow-md p-6 w-full"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              {Icon && <Icon className={`w-5 h-5 ${getScoreColor(analysis.summary.score)}`} />}
+              <h4 className="text-lg font-medium text-gray-900 capitalize">
+                {key.replace(/([A-Z])/g, ' $1')}
+              </h4>
+            </div>
+            <ul className="space-y-3">
               {points.map((point, index) => (
-                <li key={index} className="text-gray-600">• {point}</li>
+                <li key={index} className="flex items-start gap-3">
+                  <span className={`flex-shrink-0 w-6 h-6 ${getScoreBg(analysis.summary.score)} ${getScoreColor(analysis.summary.score)} rounded-full flex items-center justify-center text-sm`}>
+                    {index + 1}
+                  </span>
+                  <span className="text-gray-600">{point}</span>
+                </li>
               ))}
             </ul>
-          </div>
-        ))}
-      </div>
+          </motion.div>
+        )
+      })}
 
       {/* Recommendations */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">Next Steps</h3>
-        <ul className="space-y-2">
+      <div className="bg-white rounded-xl shadow-md p-6 w-full">
+        <h3 className="text-xl font-semibold mb-4">Recommended Actions</h3>
+        <div className="space-y-4">
           {analysis.recommendations.map((rec, index) => (
-            <li key={index} className="flex items-start">
-              <span className={`flex-shrink-0 w-6 h-6 ${getScoreBg(analysis.summary.score)} ${getScoreColor(analysis.summary.score)} rounded-full flex items-center justify-center mr-2`}>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`flex items-start gap-4 p-4 rounded-lg ${getScoreBg(analysis.summary.score)}`}
+            >
+              <span className={`flex-shrink-0 w-8 h-8 ${getScoreColor(analysis.summary.score)} bg-white rounded-full flex items-center justify-center font-medium`}>
                 {index + 1}
               </span>
-              <span className="text-gray-600">{rec}</span>
-            </li>
+              <span className="text-gray-700">{rec}</span>
+            </motion.div>
           ))}
-        </ul>
+        </div>
       </div>
-    </div>
+    </motion.div>
   )
 } 

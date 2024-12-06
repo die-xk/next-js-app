@@ -9,7 +9,7 @@ export interface AnalysisPrompt {
   }
 }
 
-export interface AnalysisResponse {
+export interface AnalysisResult {
   summary: {
     title: string
     verdict: string
