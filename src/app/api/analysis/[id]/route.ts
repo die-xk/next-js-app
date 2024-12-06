@@ -4,11 +4,12 @@ import { deleteAnalysis } from '@/lib/db'
 import { adminAuth } from '@/lib/firebase-admin'
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
-    const token = req.headers.get('Authorization')?.split('Bearer ')[1]
+    const { id } = await props.params
+    const token = request.headers.get('Authorization')?.split('Bearer ')[1]
     
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 })
@@ -17,7 +18,7 @@ export async function DELETE(
     const decodedToken = await adminAuth.verifyIdToken(token)
     const userId = decodedToken.uid
 
-    await deleteAnalysis(params.id, userId)
+    await deleteAnalysis(id, userId)
     
     return NextResponse.json({ success: true })
   } catch (error: Error | unknown) {
