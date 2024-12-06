@@ -5,7 +5,8 @@ import NewAnalysisForm from '@/components/dashboard/NewAnalysisForm'
 import { AI_PERSONAS, PersonaKey } from '@/lib/openai'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { BrainCircuit, LineChart, ShieldCheck } from 'lucide-react'
+import { BrainCircuit, LineChart, ShieldCheck, Lock } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
 
 const personaIcons = {
   VC: BrainCircuit,
@@ -15,6 +16,7 @@ const personaIcons = {
 
 export default function NewAnalysisPage() {
   const [selectedPersona, setSelectedPersona] = useState<PersonaKey | null>(null)
+  const { canAccessAdvisor } = useSubscription()
 
   return (
     <DashboardShell>
@@ -35,13 +37,14 @@ export default function NewAnalysisPage() {
             <div className="space-y-3">
               {Object.entries(AI_PERSONAS).map(([key, persona]) => {
                 const Icon = personaIcons[key as PersonaKey]
+                const isLocked = !canAccessAdvisor(key as PersonaKey)
                 return (
                   <div 
                     key={key}
-                    onClick={() => setSelectedPersona(key as PersonaKey)}
+                    onClick={() => !isLocked && setSelectedPersona(key as PersonaKey)}
                     className={cn(
-                      "p-4 rounded-lg border transition-all cursor-pointer",
-                      "hover:border-indigo-500 hover:shadow-md",
+                      "p-4 rounded-lg border transition-all",
+                      isLocked ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-indigo-500 hover:shadow-md",
                       selectedPersona === key ? [
                         "border-indigo-500",
                         "bg-indigo-50",
@@ -55,7 +58,7 @@ export default function NewAnalysisPage() {
                         "p-2 rounded-lg",
                         selectedPersona === key ? "bg-indigo-500 text-white" : "bg-gray-100 text-gray-500"
                       )}>
-                        <Icon className="w-5 h-5" />
+                        {isLocked ? <Lock className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                       </div>
                       <div>
                         <h3 className="font-medium">{persona.role}</h3>
@@ -69,12 +72,6 @@ export default function NewAnalysisPage() {
                   </div>
                 )
               })}
-            </div>
-
-            <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
-              <p className="text-sm text-indigo-800">
-                <span className="font-semibold">Pro Tip:</span> Upgrade to get comprehensive feedback from all advisors and unlock follow-up questions.
-              </p>
             </div>
           </div>
         </div>

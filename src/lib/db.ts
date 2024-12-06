@@ -289,4 +289,21 @@ export async function getMonthlyAnalysisCount(userId: string): Promise<number> {
   });
 
   return result.count;
+}
+
+export async function checkUserAnalyses(userId: string) {
+  const query = `
+    SELECT id, created_at 
+    FROM analyses 
+    WHERE user_id = ? 
+    ORDER BY created_at DESC
+  `;
+
+  const analyses = await executeQuery({
+    query,
+    values: [userId]
+  });
+
+  console.log('User analyses:', analyses);
+  return analyses;
 } 

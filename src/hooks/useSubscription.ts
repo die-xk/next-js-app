@@ -1,62 +1,50 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/context/AuthContext'
-import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '@/types/subscription'
 import { PersonaKey } from '@/lib/openai'
+import { useState, useEffect } from 'react'
 
 export function useSubscription() {
-  const [subscription, setSubscription] = useState<{
-    tier: SubscriptionTier;
-    limits: typeof SUBSCRIPTION_LIMITS[SubscriptionTier];
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { getAuthHeaders } = useAuth();
+  const { user } = useAuth()
+  const [analysisCount, setAnalysisCount] = useState(0)
+  const [analyses, setAnalyses] = useState<any[]>([])
 
   useEffect(() => {
-    async function fetchSubscription() {
+    const fetchAnalysisCount = async () => {
+      if (!user) return
+      
       try {
-        const response = await fetch('/api/test-subscription', {
-          headers: getAuthHeaders()
-        });
-        const data = await response.json();
-        
-        if (data.subscription) {
-          setSubscription({
-            tier: data.subscription.subscription_tier as SubscriptionTier,
-            limits: SUBSCRIPTION_LIMITS[data.subscription.subscription_tier as SubscriptionTier]
-          });
-        }
+        const response = await fetch('/api/user/analysis-count', {
+          headers: {
+            'Authorization': `Bearer ${await user.getIdToken()}`
+          }
+        })
+        const data = await response.json()
+        console.log('Analysis data:', data) // Debug log
+        setAnalysisCount(data.count)
+        setAnalyses(data.analyses)
       } catch (error) {
-        console.error('Error fetching subscription:', error);
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch analysis count:', error)
       }
     }
 
-    fetchSubscription();
-  }, []);
+    fetchAnalysisCount()
+  }, [user])
 
-  const getAvailableAdvisors = (): PersonaKey[] => {
-    if (!subscription) return ['VC']; // Free tier default
-    return SUBSCRIPTION_LIMITS[subscription.tier].advisors as PersonaKey[];
-  };
-
-  const canAccessAdvisor = (persona: PersonaKey): boolean => {
-    const availableAdvisors = getAvailableAdvisors();
-    return availableAdvisors.includes(persona);
-  };
+  const canAccessAdvisor = (persona: PersonaKey) => {
+    return persona === 'VC' || user?.subscriptionTier === 'pro'
+  }
 
   const getRemainingAnalyses = () => {
-    if (!subscription) return 0;
-    return subscription.limits.analysisCount;
-  };
+    if (!user) return 0
+    if (user?.subscriptionTier === 'pro') return -1 // Unlimited for pro users
+    return Math.max(1 - analysisCount, 0) // Free tier gets 1 analysis per month
+  }
 
   return {
-    subscription,
-    loading,
     canAccessAdvisor,
-    getAvailableAdvisors,
-    getRemainingAnalyses
-  };
+    getRemainingAnalyses,
+    analysisCount,
+    analyses // Include analyses in return object if needed elsewhere
+  }
 } 

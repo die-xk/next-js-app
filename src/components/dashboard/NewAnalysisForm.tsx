@@ -41,13 +41,25 @@ const initialFormData: FormData = {
 
 export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProps) {
   const { getAuthHeaders } = useAuth();
-  const { canAccessAdvisor, getRemainingAnalyses } = useSubscription();
+  const { canAccessAdvisor, getRemainingAnalyses, analyses } = useSubscription();
   const remainingAnalyses = getRemainingAnalyses();
+  const [showLimitModal, setShowLimitModal] = useState(false)
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const [showPreview, setShowPreview] = useState(false)
+
+  // Calculate next reset date based on the most recent analysis
+  const getNextResetDate = () => {
+    if (!analyses.length) return new Date()
+    const lastAnalysis = new Date(analyses[0].created_at)
+    return new Date(
+      lastAnalysis.getFullYear(),
+      lastAnalysis.getMonth() + 1,
+      1
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,8 +70,8 @@ export default function NewAnalysisForm({ selectedPersona }: NewAnalysisFormProp
     }
 
     if (remainingAnalyses === 0) {
-      setError('You have reached your monthly analysis limit. Please upgrade to continue.');
-      return;
+      setShowLimitModal(true)
+      return
     }
 
     if (!selectedPersona) {
