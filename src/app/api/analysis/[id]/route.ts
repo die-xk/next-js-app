@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { deleteAnalysis } from '@/lib/db';
 import { adminAuth } from '@/lib/firebase-admin';
 
+interface RouteParams {
+  params: {
+    id: string;
+  };
+}
+
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
-    // Await the params before using them
-    const params = await context.params;
-    const { id } = params;
+    const { id } = await params;
     
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token) {
