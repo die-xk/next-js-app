@@ -127,7 +127,7 @@ export default function HistoryPage() {
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation() // Prevent card click event
     try {
-      const response = await fetch(`/api/analysis/${id}`, {
+      const response = await fetch(`/api/analysis?id=${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       })

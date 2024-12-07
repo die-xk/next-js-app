@@ -6,6 +6,7 @@ import DashboardShell from '@/components/dashboard/DashboardShell'
 import AnalysisResults from '@/components/dashboard/AnalysisResults'
 import AnalysisLoading from '@/components/dashboard/AnalysisLoading'
 import { Analysis } from '@/types/database'
+import { PersonaKey } from '@/lib/openai'
 
 export default function ResultsPage() {
   const [analyses, setAnalyses] = useState<Analysis[] | null>(null)
@@ -14,6 +15,7 @@ export default function ResultsPage() {
   const searchParams = useSearchParams()
   const analysisId = searchParams.get('id')
   const isLoading = searchParams.get('loading') === 'true'
+  const selectedPersona = (searchParams.get('persona') || 'VC') as PersonaKey
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -52,7 +54,7 @@ export default function ResultsPage() {
   if (isLoading) {
     return (
       <DashboardShell>
-        <AnalysisLoading />
+        <AnalysisLoading selectedPersona={selectedPersona} />
       </DashboardShell>
     )
   }
@@ -70,7 +72,7 @@ export default function ResultsPage() {
 
   return (
     <DashboardShell>
-      {analyses && <AnalysisResults analyses={analyses} />}
+      {analyses && <AnalysisResults analyses={analyses} selectedPersona={selectedPersona} />}
     </DashboardShell>
   )
 } 

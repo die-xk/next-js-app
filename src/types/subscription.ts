@@ -1,4 +1,4 @@
-export type SubscriptionTier = 'free' | 'pro' | 'enterprise';
+export type SubscriptionTier = 'free' | 'pro';
 
 export interface SubscriptionLimits {
   analysisCount: number;
@@ -19,11 +19,5 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
     followUpQuestions: true,
     advisors: ['VC', 'MARKET'],
     responseTime: '6h'
-  },
-  enterprise: {
-    analysisCount: -1, // unlimited
-    followUpQuestions: true,
-    advisors: ['VC', 'MARKET', 'RISK'],
-    responseTime: '1h'
   }
 }; 

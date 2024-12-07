@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
 import { adminAuth } from '@/lib/firebase-admin'
 import { saveChatMessage, getChatMessages, getAnalysisById } from '@/lib/db'
 import { nanoid } from 'nanoid'
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params
-
+export async function GET(request: NextRequest) {
   try {
+    const id = request.nextUrl.searchParams.get('id')
+    if (!id) {
+      return NextResponse.json({ error: 'No analysis ID provided' }, { status: 400 })
+    }
+
     const token = request.headers.get('Authorization')?.split('Bearer ')[1]
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 })
@@ -29,13 +29,13 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params
-
+export async function POST(request: NextRequest) {
   try {
+    const id = request.nextUrl.searchParams.get('id')
+    if (!id) {
+      return NextResponse.json({ error: 'No analysis ID provided' }, { status: 400 })
+    }
+
     const token = request.headers.get('Authorization')?.split('Bearer ')[1]
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 })

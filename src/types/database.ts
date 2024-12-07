@@ -25,20 +25,13 @@ export interface Analysis {
 }
 
 export interface AnalysisResult {
-  executiveSummary: string
-  detailedAnalysis: {
-    marketOpportunity: string
-    businessModel: string
-    competitiveAdvantage: string
-    keyRisks: string
-  }
-  strengths: string[]
-  concerns: string[]
-  recommendations: string[]
-  nextSteps: string[]
-  score: {
-    marketPotential: string
-    executionRisk: string
-    overallViability: string
-  }
+  summary: {
+    score: number;
+    verdict: string;
+  };
+  sections: {
+    [key: string]: string[];
+  };
+  recommendations: string[];
+  followUpQuestions: string[];
 } 

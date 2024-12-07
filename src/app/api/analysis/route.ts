@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { deleteAnalysis } from '@/lib/db';
 import { adminAuth } from '@/lib/firebase-admin';
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { id } = await params;
+    const id = request.nextUrl.searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ error: 'No analysis ID provided' }, { status: 400 });
+    }
     
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token) {
@@ -28,4 +28,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
+} 

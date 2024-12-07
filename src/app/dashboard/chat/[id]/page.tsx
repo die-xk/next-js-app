@@ -28,7 +28,7 @@ export default function ChatPage() {
 
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`/api/chat/${analysisId}`, {
+        const response = await fetch(`/api/chat?id=${analysisId}`, {
           headers: getAuthHeaders(),
         })
 
@@ -50,7 +50,7 @@ export default function ChatPage() {
 
   const handleSendMessage = async (message: string) => {
     try {
-      const response = await fetch(`/api/chat/${analysisId}`, {
+      const response = await fetch(`/api/chat?id=${analysisId}`, {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),

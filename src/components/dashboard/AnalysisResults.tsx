@@ -4,48 +4,25 @@ import { useState } from 'react'
 import VCAnalysis from './analysis/VCAnalysis'
 import MarketAnalysis from './analysis/MarketAnalysis'
 import { PersonaKey } from '@/lib/openai'
-
-interface AnalysisContent {
-  executiveSummary: string
-  detailedAnalysis: {
-    marketOpportunity: string
-    businessModel: string
-    competitiveAdvantage: string
-    keyRisks: string
-  }
-  strengths: string[]
-  concerns: string[]
-  recommendations: string[]
-  nextSteps: string[]
-  score: {
-    marketPotential: string
-    executionRisk: string
-    overallViability: string
-  }
-}
-
-interface Analysis {
-  persona: string
-  role: string
-  analysis: AnalysisContent
-}
+import { Analysis } from '@/types/database'
 
 interface AnalysisResultsProps {
   analyses: Analysis[]
+  selectedPersona?: PersonaKey
 }
 
-export default function AnalysisResults({ analyses }: AnalysisResultsProps) {
-  const [activePersona, setActivePersona] = useState<PersonaKey>('VC')
-  const analysis = analyses.find(a => a.persona === activePersona)?.analysis
+export default function AnalysisResults({ analyses, selectedPersona = 'VC' }: AnalysisResultsProps) {
+  const [activePersona, setActivePersona] = useState<PersonaKey>(selectedPersona)
+  const analysisResult = analyses.find(a => a.persona === activePersona)?.analysis_result
 
   const renderAnalysis = () => {
-    if (!analysis) return null
+    if (!analysisResult) return null
 
     switch (activePersona) {
       case 'VC':
-        return <VCAnalysis analysis={analysis} />
+        return <VCAnalysis analysis={analysisResult} />
       case 'MARKET':
-        return <MarketAnalysis analysis={analysis} />
+        return <MarketAnalysis analysis={analysisResult} />
       case 'RISK':
         return <></>
       default:

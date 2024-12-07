@@ -9,21 +9,21 @@ const testimonials = [
     author: "Sarah Chen",
     role: "Founder & CEO",
     company: "TechFlow",
-    image: "/testimonial1.jpg"
+    image: ""
   },
   {
     content: "The multi-perspective analysis gave us a complete 360° view of our startup idea. The VC feedback was particularly eye-opening.",
     author: "Michael Roberts",
     role: "Co-founder",
     company: "GrowthBase",
-    image: "/testimonial2.jpg"
+    image: ""
   },
   {
     content: "Using StartupLens before pitching to investors helped us refine our pitch deck and ultimately secure our seed round.",
     author: "Jessica Wong",
     role: "Founder",
     company: "EduTech Solutions",
-    image: "/testimonial3.jpg"
+    image: ""
   }
 ]
 
