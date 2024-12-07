@@ -4,28 +4,29 @@ import { deleteAnalysis } from '@/lib/db'
 import { adminAuth } from '@/lib/firebase-admin'
 
 export async function DELETE(
-  request: Request,
-  props: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: { id: string } } // Make params a direct object
 ) {
   try {
-    const { id } = await props.params
-    const token = request.headers.get('Authorization')?.split('Bearer ')[1]
+    const { id } = params; // Directly access `params` instead of awaiting it
+    const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     
     if (!token) {
-      return NextResponse.json({ error: 'No token provided' }, { status: 401 })
+      return NextResponse.json({ error: 'No token provided' }, { status: 401 });
     }
 
-    const decodedToken = await adminAuth.verifyIdToken(token)
-    const userId = decodedToken.uid
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
 
-    await deleteAnalysis(id, userId)
+    await deleteAnalysis(id, userId);
     
-    return NextResponse.json({ success: true })
-  } catch (error: Error | unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete analysis'
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to delete analysis';
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }
-    )
+    );
   }
-} 
+}
