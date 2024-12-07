@@ -1,16 +1,17 @@
-import { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
-import { deleteAnalysis } from '@/lib/db'
-import { adminAuth } from '@/lib/firebase-admin'
+import { NextRequest, NextResponse } from 'next/server';
+import { deleteAnalysis } from '@/lib/db';
+import { adminAuth } from '@/lib/firebase-admin';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } } // Make params a direct object
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params; // Directly access `params` instead of awaiting it
-    const token = request.headers.get('Authorization')?.split('Bearer ')[1];
+    // Await the params before using them
+    const params = await context.params;
+    const { id } = params;
     
+    const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
     }
