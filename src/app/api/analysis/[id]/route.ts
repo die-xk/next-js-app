@@ -2,15 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { deleteAnalysis } from '@/lib/db';
 import { adminAuth } from '@/lib/firebase-admin';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = await params;
